@@ -7,24 +7,23 @@ import (
 )
 
 type EventEnvelop struct {
-
 	// For sending message
 	//   Result is an optional channel to receive the result of the message publishing, which is
 	//     + nil if message was send successfully
 	//     + error if the message couldn't be send
 	//
-	// For receiving message done is used to acknowledge the processing of message by sending
-	//     + message was send successfully
-	//     + error if message cannot be processed
+	// For receiving message, Result channel is used to acknowledge the processing of message by receiver.
+	//     + Receiver sends nil if message is processed successfully
+	//     + Receiver sends error if the message cannot be processed
 	Result chan<- error
 
 	Event
 }
 
 type Event interface {
-	// Context from which the event are publish
-	// It is used to propagate request-scoped values
-	// Cancellation signals from the context will not be used
+	// Context return the context from which the event is created
+	// The returned context is used to propagate request-scoped values
+	// Cancellation signals is not used
 	Context() context.Context
 
 	// Content of the event
