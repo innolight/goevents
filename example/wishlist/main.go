@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/innolight/goevents"
 	"github.com/innolight/goevents/middlewares"
-	"github.com/innolight/goevents/queues/sqs"
+	"github.com/innolight/goevents/queues/sns"
 	"log"
 	"net/http"
 	"os"
@@ -17,14 +17,14 @@ import (
 	"time"
 )
 
-const addedWishlistItemsTopic = "sqs-demo-added-wishlist-items"
+const addedWishlistItemsTopic = "arn:aws:sns:eu-central-1:000000000000:sns-demo-added-wishlist-items"
 
 func main() {
 	awsConf := &aws.Config{Endpoint: aws.String("http://localhost:4566"), Region: aws.String("eu-central-1")}
-	transport := goevents.NewTransport(sqs.NewQueueProvider(sqs.WithAwsConfig(awsConf)),
+	transport := goevents.NewTransport(sns.NewQueueProvider(sns.WithAwsConfig(awsConf)),
 		goevents.WithMiddlewares(
 			middlewares.LoggingMiddleware(),
-			middlewares.RetryMiddleware(func() backoff.BackOff { return backoff.NewExponentialBackOff() }),
+			middlewares.RetryMiddleware(func() backoff.BackOff { return backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 3) }),
 		),
 		goevents.WithPublisherCount(400),
 		goevents.WithBufferSize(1024*8),

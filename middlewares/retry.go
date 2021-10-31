@@ -23,10 +23,11 @@ func (l retryWrapper) Send(ctx context.Context, event goevents.Event) error {
 	count := 0
 	return backoff.Retry(func() error {
 		err := l.underlying.Send(ctx, event)
-		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-			return backoff.Permanent(err)
-		}
 		if err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				return backoff.Permanent(err)
+			}
+
 			log.Printf("[RETRY attempt-%d] Publish event [%v] failed with err: %s\n", count, event, err.Error())
 			count++
 		}

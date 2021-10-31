@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/innolight/goevents"
 	"github.com/innolight/goevents/middlewares"
+	"github.com/innolight/goevents/queues/sns"
 	"github.com/innolight/goevents/queues/sqs"
 	"time"
 )
@@ -23,6 +24,7 @@ func main() {
 		sqs.NewQueueProvider(sqs.WithAwsConfig(&aws.Config{Endpoint: aws.String("http://localhost:4566"), Region: aws.String("eu-central-1")})),
 		goevents.WithMiddlewares(
 			middlewares.LoggingMiddleware(),
+			sns.SNSNotificationParseMiddleware,
 		),
 	)
 	defer func() {
