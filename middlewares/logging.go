@@ -8,13 +8,13 @@ import (
 )
 
 func LoggingMiddleware() goevents.MiddleWare {
-	return func(queue goevents.Topic) goevents.Topic {
+	return func(queue goevents.Queue) goevents.Queue {
 		return loggingWrapper{queue}
 	}
 }
 
 type loggingWrapper struct {
-	underlying goevents.Topic
+	underlying goevents.Queue
 }
 
 func (l loggingWrapper) Send(ctx context.Context, event goevents.Event) error {

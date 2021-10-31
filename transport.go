@@ -14,7 +14,7 @@ type Transport interface {
 	Shutdown(ctx context.Context)
 }
 
-func NewTransport(queueFactory TopicFactory, options ...Option) Transport {
+func NewTransport(queueFactory QueueProvider, options ...Option) Transport {
 	var conf = writeGroupConfig{
 		workerCount: DefaultPublisherCount,
 		bufferSize:  DefaultSendChannelBufferSize,
@@ -30,7 +30,7 @@ func NewTransport(queueFactory TopicFactory, options ...Option) Transport {
 
 type transport struct {
 	conf         writeGroupConfig
-	queueFactory TopicFactory
+	queueFactory QueueProvider
 	// map: topic -> writeGroup
 	writeGroups sync.Map
 }
@@ -84,7 +84,7 @@ func (t *transport) Receive(topic string) (<-chan EventEnvelop, error) {
 	return result, nil
 }
 
-func (t *transport) getQueue(topic string) (Topic, error) {
+func (t *transport) getQueue(topic string) (Queue, error) {
 	queue, err := t.queueFactory.Get(context.Background(), topic)
 	if err != nil {
 		return nil, fmt.Errorf("NewSqsPublisher: %w", err)
@@ -114,7 +114,7 @@ func (t *transport) Shutdown(ctx context.Context) {
 
 func newWriteGroup(
 	backlog chan EventEnvelop,
-	queue Topic,
+	queue Queue,
 ) (*writeGroup, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -132,7 +132,7 @@ func newWriteGroup(
 // writeGroup represents a group of gorountines to write to the topic
 type writeGroup struct {
 	conf    writeGroupConfig
-	topic   Topic
+	topic   Queue
 	backlog chan EventEnvelop
 
 	// waitGroup to coordinate shutdown between all topic

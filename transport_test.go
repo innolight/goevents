@@ -136,7 +136,7 @@ type mockPublisherFactory struct {
 	publishError   func(ctx context.Context, event Event) error
 }
 
-func (m *mockPublisherFactory) Get(ctx context.Context, name string) (Topic, error) {
+func (m *mockPublisherFactory) Get(ctx context.Context, name string) (Queue, error) {
 	return &mockPublisher{
 		publish: func(ctx context.Context, event Event) error {
 			if err := m.publishError(ctx, event); err != nil {

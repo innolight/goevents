@@ -20,7 +20,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 	transport := goevents.NewTransport(
-		sqs.NewTopicFactory(sqs.WithAwsConfig(&aws.Config{Endpoint: aws.String("http://localhost:4566"), Region: aws.String("eu-central-1")})),
+		sqs.NewQueueProvider(sqs.WithAwsConfig(&aws.Config{Endpoint: aws.String("http://localhost:4566"), Region: aws.String("eu-central-1")})),
 		goevents.WithMiddlewares(
 			middlewares.LoggingMiddleware(),
 		),
@@ -74,7 +74,7 @@ func getRecommendation(event goevents.Event) recommendationEvent {
 
 type recommendationEvent struct {
 	User             string   `json:"user"`
-	RecommendedItems []string `json:"might_like_items"`
+	RecommendedItems []string `json:"recommended_items"`
 }
 
 type wishlistItemAddedEvent struct {

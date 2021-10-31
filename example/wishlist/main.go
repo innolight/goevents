@@ -21,7 +21,7 @@ const addedWishlistItemsTopic = "sqs-demo-added-wishlist-items"
 
 func main() {
 	awsConf := &aws.Config{Endpoint: aws.String("http://localhost:4566"), Region: aws.String("eu-central-1")}
-	transport := goevents.NewTransport(sqs.NewTopicFactory(sqs.WithAwsConfig(awsConf)),
+	transport := goevents.NewTransport(sqs.NewQueueProvider(sqs.WithAwsConfig(awsConf)),
 		goevents.WithMiddlewares(
 			middlewares.LoggingMiddleware(),
 			middlewares.RetryMiddleware(func() backoff.BackOff { return backoff.NewExponentialBackOff() }),

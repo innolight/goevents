@@ -2,39 +2,13 @@ package sqs
 
 import (
 	"context"
-	"github.com/innolight/goevents"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/innolight/goevents"
 )
 
-type conf struct {
-	AwsConfigs                []*aws.Config
-	ReceiveMaxNumberOfMessage int
-	ReceiveWaitTimeSeconds    int
-}
-
-type Option func(conf *conf)
-
-func WithAwsConfig(awsConf *aws.Config) Option {
-	return func(conf *conf) {
-		conf.AwsConfigs = append(conf.AwsConfigs, awsConf)
-	}
-}
-
-func WithReceiveMaxNumberOfMessage(i int) Option {
-	return func(conf *conf) {
-		conf.ReceiveMaxNumberOfMessage = i
-	}
-}
-
-func WithReceiveWaitTimeSeconds(i int) Option {
-	return func(conf *conf) {
-		conf.ReceiveWaitTimeSeconds = i
-	}
-}
-
-func NewTopicFactory(options ...Option) goevents.TopicFactory {
+func NewQueueProvider(options ...Option) goevents.QueueProvider {
 	conf := conf{
 		ReceiveMaxNumberOfMessage: 10,
 		ReceiveWaitTimeSeconds:    20,
@@ -46,14 +20,14 @@ func NewTopicFactory(options ...Option) goevents.TopicFactory {
 		conf.AwsConfigs = append(conf.AwsConfigs, &aws.Config{Region: aws.String("eu-central-1")})
 	}
 
-	return &queueFactory{conf: conf}
+	return &queueProvider{conf: conf}
 }
 
-type queueFactory struct {
+type queueProvider struct {
 	conf conf
 }
 
-func (f queueFactory) Get(ctx context.Context, name string) (goevents.Topic, error) {
+func (f queueProvider) Get(ctx context.Context, name string) (goevents.Queue, error) {
 	awsSession, err := session.NewSession(f.conf.AwsConfigs...)
 	if err != nil {
 		return nil, err

@@ -9,13 +9,13 @@ import (
 )
 
 func RetryMiddleware(backoffPolicy func() backoff.BackOff) goevents.MiddleWare {
-	return func(queue goevents.Topic) goevents.Topic {
+	return func(queue goevents.Queue) goevents.Queue {
 		return retryWrapper{underlying: queue, backoffPolicy: backoffPolicy}
 	}
 }
 
 type retryWrapper struct {
-	underlying    goevents.Topic
+	underlying    goevents.Queue
 	backoffPolicy func() backoff.BackOff
 }
 
