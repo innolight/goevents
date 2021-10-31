@@ -5,23 +5,28 @@ import (
 	"github.com/innolight/goevents"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
-func TestRecommend(t *testing.T) {
-	wishlistItemsEvent := make(chan goevents.EventEnvelop)
-	recommendationsEvents := make(chan goevents.EventEnvelop)
+func TestRecommendation(t *testing.T) {
+	// GIVEN
+	wishlistItems := make(chan goevents.EventEnvelop)
+	recommendations := make(chan goevents.EventEnvelop)
+	go Recommend(context.Background(), wishlistItems, recommendations)
 
-	go Recommend(context.Background(), wishlistItemsEvent, recommendationsEvents)
-
-	ackItemProcessed := make(chan error, 1)
-	wishlistItemsEvent <- goevents.EventEnvelop{
-		Result: ackItemProcessed,
-		Event:  goevents.Event{Body: []byte("user1 likes item1")},
+	// WHEN
+	wishlistItems <- goevents.EventEnvelop{
+		Result: make(chan error, 1),
+		Event:  goevents.JsonEvent(context.Background(), wishlistItemAddedEvent{UserID: "user1"}),
 	}
 
-	recoEvent := <-recommendationsEvents
-	assert.Equal(t, "user might like item2, item3", string(recoEvent.Body))
-
-	recoEvent.Result <- nil // Ack event is sent
-	assert.Nil(t, <-ackItemProcessed)
+	// THEN
+	select {
+	case <-time.After(time.Millisecond * 100):
+		t.Fail()
+	case reco := <-recommendations:
+		var result recommendationEvent
+		assert.NoError(t, goevents.BindJson(reco, &result))
+		assert.Equal(t, result.User, "user1")
+	}
 }

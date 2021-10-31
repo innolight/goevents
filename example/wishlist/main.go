@@ -39,7 +39,7 @@ func main() {
 	router.POST("/wishlists/:wishlist-id/items", func(c *gin.Context) {
 		// update database
 		topic <- goevents.EventEnvelop{
-			Event: goevents.JsonEvent(c.Request.Context(), getWishlistItemAddedEvent()),
+			Event: goevents.JsonEvent(c.Request.Context(), wishlistItemAddedEvent()),
 		}
 		c.JSON(http.StatusOK, "done")
 	})
@@ -86,7 +86,7 @@ type WishlistItemAddedEvent struct {
 	ItemID string `json:"item_id"`
 }
 
-func getWishlistItemAddedEvent() WishlistItemAddedEvent {
+func wishlistItemAddedEvent() WishlistItemAddedEvent {
 	return WishlistItemAddedEvent{
 		UserID: uuid.NewString(),
 		ItemID: uuid.NewString(),

@@ -62,10 +62,7 @@ func Recommend(ctx context.Context, wishlistItems <-chan goevents.EventEnvelop, 
 }
 
 func getRecommendation(event goevents.Event) recommendationEvent {
-	var e struct {
-		UserID string `json:"user_id"`
-		ItemID string `json:"item_id"`
-	}
+	var e wishlistItemAddedEvent
 	if err := goevents.BindJson(event, &e); err != nil {
 		panic(err)
 	}
@@ -78,4 +75,9 @@ func getRecommendation(event goevents.Event) recommendationEvent {
 type recommendationEvent struct {
 	User             string   `json:"user"`
 	RecommendedItems []string `json:"might_like_items"`
+}
+
+type wishlistItemAddedEvent struct {
+	UserID string `json:"user_id"`
+	ItemID string `json:"item_id"`
 }
