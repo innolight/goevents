@@ -41,7 +41,7 @@ for received := range wishlistItems {
 ## Supported queue technologies
 
 + [x] [Amazon SQS](https://aws.amazon.com/sqs/)
-+ [ ] Amazon SNS
++ [x] Amazon SNS (only send of events)
 + [ ] Kafka
 + [ ] Rabbit MQ
 + [ ] Redis
