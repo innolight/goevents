@@ -2,6 +2,7 @@ package sqs
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
@@ -11,10 +12,11 @@ import (
 )
 
 type queue struct {
-	queueURL            string
-	sqs                 sqsiface.SQSAPI
-	maxNumberOfMessages int
-	waitTimeSeconds     int
+	queueURL                 string
+	sqs                      sqsiface.SQSAPI
+	maxNumberOfMessages      int
+	waitTimeSeconds          int
+	mappingSNSMessageEnabled bool
 }
 
 func (q *queue) Send(ctx context.Context, event goevents.Event) (err error) {
@@ -47,6 +49,15 @@ func (q *queue) Receive(ctx context.Context) ([]goevents.EventEnvelop, error) {
 	for idx := range sqsMessages.Messages {
 		// explicitly create a copy
 		m := sqsMessages.Messages[idx]
+		body := *m.Body
+		if q.mappingSNSMessageEnabled {
+			var snsNotification struct {
+				Message string `json:"Message"`
+			}
+			if err := json.Unmarshal([]byte(body), &snsNotification); err == nil {
+				body = snsNotification.Message
+			}
+		}
 
 		resultChannel := make(chan error)
 		go func() {
@@ -60,11 +71,12 @@ func (q *queue) Receive(ctx context.Context) ([]goevents.EventEnvelop, error) {
 				QueueUrl:      aws.String(q.queueURL),
 				ReceiptHandle: m.ReceiptHandle,
 			})
-			log.Printf("Acknowledged processed message: %s\n", *m.Body)
+			log.Printf("[INFO] Acknowledged processed message: %s\n", body)
 		}()
+
 		results = append(results, goevents.EventEnvelop{
 			Result: resultChannel,
-			Event:  goevents.StringEvent(ctx, *m.Body),
+			Event:  goevents.StringEvent(ctx, body),
 		})
 	}
 

@@ -38,9 +38,10 @@ func (f queueProvider) Get(ctx context.Context, name string) (goevents.Queue, er
 		return nil, err
 	}
 	return &queue{
-		queueURL:            queueURl,
-		sqs:                 svc,
-		maxNumberOfMessages: f.conf.ReceiveMaxNumberOfMessage,
-		waitTimeSeconds:     f.conf.ReceiveWaitTimeSeconds,
+		queueURL:                 queueURl,
+		sqs:                      svc,
+		maxNumberOfMessages:      f.conf.ReceiveMaxNumberOfMessage,
+		waitTimeSeconds:          f.conf.ReceiveWaitTimeSeconds,
+		mappingSNSMessageEnabled: f.conf.MappingSNSMessageEnabled,
 	}, nil
 }

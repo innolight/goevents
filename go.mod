@@ -7,5 +7,6 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/gin-gonic/gin v1.7.4
 	github.com/google/uuid v1.3.0
+	github.com/segmentio/kafka-go v0.4.22
 	github.com/stretchr/testify v1.7.0
 )

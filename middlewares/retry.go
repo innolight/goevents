@@ -36,9 +36,5 @@ func (l retryWrapper) Send(ctx context.Context, event goevents.Event) error {
 }
 
 func (l retryWrapper) Receive(ctx context.Context) ([]goevents.EventEnvelop, error) {
-	events, err := l.underlying.Receive(ctx)
-	for _, e := range events {
-		log.Printf("handling event: %v\n", e)
-	}
-	return events, err
+	return l.underlying.Receive(ctx)
 }

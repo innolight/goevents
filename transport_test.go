@@ -22,7 +22,7 @@ func TestTransport_GracefulShutdownOnTime(t *testing.T) {
 			workerCount: 10,
 			bufferSize:  1024,
 		},
-		queueFactory: publisherFactory,
+		queueProvider: publisherFactory,
 	}
 	assert.NotNil(t, transport)
 
@@ -63,7 +63,7 @@ func TestTransport_GracefulShutdownTimedOut(t *testing.T) {
 			workerCount: 10,
 			bufferSize:  1024,
 		},
-		queueFactory: publisherFactory,
+		queueProvider: publisherFactory,
 	}
 	assert.NotNil(t, transport)
 

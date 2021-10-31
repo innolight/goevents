@@ -14,7 +14,7 @@ type Transport interface {
 	Shutdown(ctx context.Context)
 }
 
-func NewTransport(queueFactory QueueProvider, options ...Option) Transport {
+func NewTransport(queueProvider QueueProvider, options ...Option) Transport {
 	var conf = writeGroupConfig{
 		workerCount: DefaultPublisherCount,
 		bufferSize:  DefaultSendChannelBufferSize,
@@ -23,14 +23,14 @@ func NewTransport(queueFactory QueueProvider, options ...Option) Transport {
 		apply(&conf)
 	}
 	return &transport{
-		conf:         conf,
-		queueFactory: queueFactory,
+		conf:          conf,
+		queueProvider: queueProvider,
 	}
 }
 
 type transport struct {
-	conf         writeGroupConfig
-	queueFactory QueueProvider
+	conf          writeGroupConfig
+	queueProvider QueueProvider
 	// map: topic -> writeGroup
 	writeGroups sync.Map
 }
@@ -85,7 +85,7 @@ func (t *transport) Receive(topic string) (<-chan EventEnvelop, error) {
 }
 
 func (t *transport) getQueue(topic string) (Queue, error) {
-	queue, err := t.queueFactory.Get(context.Background(), topic)
+	queue, err := t.queueProvider.Get(context.Background(), topic)
 	if err != nil {
 		return nil, fmt.Errorf("NewSqsPublisher: %w", err)
 	}

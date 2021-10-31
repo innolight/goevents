@@ -8,6 +8,7 @@ type conf struct {
 	AwsConfigs                []*aws.Config
 	ReceiveMaxNumberOfMessage int
 	ReceiveWaitTimeSeconds    int
+	MappingSNSMessageEnabled  bool
 }
 
 func WithAwsConfig(awsConf *aws.Config) Option {
@@ -28,3 +29,10 @@ func WithReceiveWaitTimeSeconds(i int) Option {
 	}
 }
 
+// If the events from the SQS queue are sourced from SNS, setting this option will automatically
+// extract the SNS message as event's body.
+func WithMappingSNSMessageEnabled() Option {
+	return func(conf *conf) {
+		conf.MappingSNSMessageEnabled = true
+	}
+}
