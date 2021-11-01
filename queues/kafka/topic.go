@@ -52,7 +52,7 @@ func (t *topic) Receive(ctx context.Context) ([]goevents.EventEnvelop, error) {
 			// TODO: how to redeliver the message
 			return
 		}
-		
+
 		log.Printf("Acknowledged processed message: %s\n", string(msg.Value))
 	}()
 
