@@ -10,28 +10,28 @@ In this example system, we have two applications:
 
 ## How to run
 
-Start `localstack` container to mock SNS and SQS locally by executing
+Start `localstack` container to mock SNS and SQS locally by running docker-compose:
 
 ```bash
-docker-compose up
+docker-compose -f examples/snssqs/docker-compose.yaml up
 ```
 
 Create necessary SQS queues and SNS topics, by running:
 
 ```
-./example/sqssns/init.sh
+./examples/snssqs/init_snssqs.sh
 ```
 
 Run wishlist application:
 
 ```bash
-go run example/snssqs/wishlist/main.go
+go run examples/snssqs/wishlist/main.go
 ```
 
 Run recommendation application:
 
 ```bash
-go run example/snssqs/recommendation/main.go
+go run examples/snssqs/recommendation/main.go
 ```
 
 Invoke the wishlist endpoint with curl:
@@ -41,3 +41,13 @@ curl http://localhost:8080/wishlists/123/items -XPOST
 ```
 
 After this you can see the logs for the wishlist and recommendation services.
+
+Or run a load test against the endpoint, .e.g by using vegeta:
+```bash
+echo "POST http://localhost:8080/wishlists/123/items" | vegeta attack -duration=300s -rate 100/1s | vegeta encode | \
+    jaggr @count=rps \
+          hist\[100,200,300,400,500\]:code \
+          p25,p50,p95:latency | \
+    jplot rps+code.hist.100+code.hist.200+code.hist.300+code.hist.400+code.hist.500 \
+          latency.p95+latency.p50+latency.p25
+```
