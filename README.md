@@ -35,7 +35,7 @@ for received := range wishlistItems {
   + explicitly receive and handle the message's publishing result, enabling at-least-one delivery guarantee
   + Or fire-and-forget (removing the latency related to message publishing)
 + **Consumers** must acknowledge the processing of message to enable message redelivery (at-least-one processing guarantee).
-+ Graceful shutdown hook to ensure all messages are flushed to the queue
++ Support for graceful shutdown to prevent message loses by ensuring all messages are flushed to the queue
 + **Middlewares** to customize the processing of events .e.g. error handling, logging, retry
 
 ## Supported queue technologies
