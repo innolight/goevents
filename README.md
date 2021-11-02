@@ -3,7 +3,7 @@
 Benefits:
 * Use Go channels transparently over a messaging technology of your choice
 * Write idiomatic Go code instead of using vendor specific APIs
-* Simple and independent unit test (no need to mock interfaces or running the queue technology)
+* Write simple and independent unit test (no need to mock interfaces or running the queue technology)
 
 ## Usage
 
